@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import session from "express-session";
+import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import authRouter from "./auth";
@@ -14,6 +15,21 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 const MemoryStore = createMemoryStore(session);
+
+// Trust Render's reverse proxy (needed for secure cookies behind HTTPS proxy)
+app.set("trust proxy", 1);
+
+// CORS — allow deployed domain + localhost for dev
+app.use(
+    cors({
+        origin: [
+            "https://acadly.onrender.com",
+            "http://localhost:5173",
+            "http://localhost:3000",
+        ],
+        credentials: true,
+    })
+);
 
 // Body parsing - increase limit for calendar image uploads
 app.use(express.json({ limit: "10mb" }));
